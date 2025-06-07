@@ -20,33 +20,37 @@ function App() {
   : 'https://youtube-summarize-1.onrender.com/summarize';
 
 
-      await fetch('https://youtube-summarize-1.onrender.com/summarize', {
+     const response = await fetch(apiUrl, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
   },
   body: JSON.stringify({ url, language }),
 });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        
-        if (errorData.type === 'NO_SUBTITLES') {
-          throw new Error(errorData.error[language] || 'Subtitles disabled');
-        }
-        else if (errorData.type === 'LANGUAGE_NOT_AVAILABLE') {
-          throw new Error(
-            `${errorData.error[language]}. ${language === 'ru' ? 'Доступные языки:' : 'Available languages:'} 
-            ${errorData.available_languages?.join(', ') || 'none'}`
-          );
-        }
-        else {
-          throw new Error(errorData.error?.[language] || 'Unknown error');
-        }
-      }
-      
-      const data = await response.json();
-      setSummary(data.summary);
+
+if (!response.ok) {
+  let errorData = {};
+  try {
+    errorData = await response.json();
+  } catch {
+    throw new Error('Server returned an invalid or empty response');
+  }
+
+  if (errorData.type === 'NO_SUBTITLES') {
+    throw new Error(errorData.error[language] || 'Subtitles disabled');
+  } else if (errorData.type === 'LANGUAGE_NOT_AVAILABLE') {
+    throw new Error(
+      `${errorData.error[language]}. ${language === 'ru' ? 'Доступные языки:' : 'Available languages:'} 
+      ${errorData.available_languages?.join(', ') || 'none'}`
+    );
+  } else {
+    throw new Error(errorData.error?.[language] || 'Unknown error');
+  }
+}
+
+const data = await response.json();
+setSummary(data.summary);
+
       
     } catch (err) {
       setError(err.message);
