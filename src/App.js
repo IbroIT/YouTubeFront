@@ -16,16 +16,17 @@ function App() {
     
     try {
       const apiUrl = process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:5000/summarize' 
-        : '/summarize';
+  ? 'http://localhost:5000/summarize' 
+  : 'https://youtube-summarize-1.onrender.com/summarize';
 
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ url, language }),
-      });
+
+      await fetch('https://youtube-summarize-1.onrender.com/summarize', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({ url, language }),
+});
       
       if (!response.ok) {
         const errorData = await response.json();
